@@ -49,12 +49,6 @@ $ cd project
 $ make run
 ```
 
-3. Rode a aplicação:
-
-```bash
-$ make dev
-```
-
 A aplicação estará disponível em `http://localhost:8080/objects`.
 
 ### Como Executar Testes
@@ -71,6 +65,84 @@ Para parar os containers Docker, use o comando:
 
 ```bash
 $ make stop
+```
+
+## Executando a Aplicação com Docker Compose
+
+Se prefere utilizar o Docker Compose para rodar tanto a aplicação quanto o Redis, siga os seguintes passos:
+
+1. Clone o repositório:
+
+```bash
+$ git clone <repositório-url>
+$ cd project
+```
+
+2. Crie um Dockerfile para a aplicação Go:
+
+```Dockerfile
+# Usando a imagem base oficial do Go
+FROM golang:1.22.4-alpine
+
+# Criando diretório de trabalho
+WORKDIR /app
+
+# Copiando arquivos go e go.mod para diretório de trabalho
+COPY . .
+
+# Instalando dependências
+RUN go mod tidy
+
+# Build da aplicação
+RUN go build -o main .
+
+# Comando para rodar a aplicação
+CMD ["./main"]
+```
+
+3. Adicione o serviço da aplicação ao arquivo `docker-compose.yaml`:
+
+```yaml
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  app:
+    build: .
+    container_name: go_app
+    environment:
+      - REDIS_ADDR=redis:6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+```
+
+4. Suba e execute os containers usando o Docker Compose:
+
+```bash
+$ docker-compose up --build
+```
+
+5. A aplicação estará disponível em `http://localhost:8080/objects`.
+
+6. Quando quiser parar os containers, execute:
+
+```bash
+$ docker-compose down
 ```
 
 ## Observação
