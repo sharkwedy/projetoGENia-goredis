@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"log"
 	"os"
+	"project/internal/handler"
+	"project/internal/service"
 	"github.com/go-redis/redis/v8"
 	"context"
 )
@@ -22,9 +24,9 @@ func main() {
 		log.Fatalf("Could not connect to Redis: %v", err)
 	}
 
-	http.HandleFunc("/objects", func(w http.ResponseWriter, r *http.Request) {
-		// Handler code will go here
-	})
+	objectService := service.NewObjectService(redisClient, ctx)
+	objectHandler := handler.NewObjectHandler(objectService)
 
+	http.Handle("/objects", objectHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
