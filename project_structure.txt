@@ -1,0 +1,12 @@
+project/
+├── docker-compose.yaml
+├── Makefile
+├── main.go
+├── internal/
+│   ├── handler/
+│   │   ├── object_handler.go
+│   │   └── object_handler_test.go
+│   └── service/
+│       ├── object_service.go
+│       ├── object_service_impl.go
+│       └── object_service_test.go
